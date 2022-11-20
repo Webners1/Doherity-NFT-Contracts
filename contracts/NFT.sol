@@ -161,21 +161,13 @@ interface nftTokenURI{
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AaronNFT is ERC721, Ownable {
+contract NFT is ERC721, Ownable {
     uint256 public tokenIds;
 
 
     // Rarity Classes
-    enum Class {
-    Common,
-    Uncommon,
-    Rare,
-    Legendary
-  }
     uint256 public price = 0.5 ether;
   
-    address TokenUriAddress;
-    uint public _seed;
 
     
     
@@ -184,34 +176,24 @@ contract AaronNFT is ERC721, Ownable {
 
 address private _burnAddress;
 uint256 public random;
- constructor(address _TokenUriAddress,uint256 _random)ERC721("MyToken", "MTK"){
+ constructor()ERC721("MyToken", "MTK"){
    
-   TokenUriAddress= _TokenUriAddress;
      
     _burnAddress = 0x000000000000000000000000000000000000dEaD;
     // Starts From 0
-     random = _random;
     }
     
 
 
-    struct EggHatch {
-        uint hatchTime;
-        bool hasAlreadyHatched;
-        bool isHatching;
-    }
+ 
 
     mapping(uint=>Attributes) public _tokenIdToAttributes;
-    mapping(uint=>EggHatch) public _eggHatch;
     
 
     // baby.mature,max mature bird level
     mapping(uint=>uint16) public level;
-    mapping(uint=>uint) public _rewardTime;
 
-    event EggMinted(address indexed, uint indexed);
-    event EggLocked(uint indexed, uint indexed);
-    event EggRarity(uint indexed, uint indexed);
+    event NFTMinted(address indexed, uint indexed);
 
 
    
@@ -238,9 +220,7 @@ uint256 public random;
    
 
   
-     function setSeed(uint _s) external onlyOwner {
-        _seed = _s;
-    } 
+   
 
 
     function mintEgg(address account,string memory _name, string memory _description,uint16 BaseTrait,uint16 MaxStamina,uint16 Stamina,uint16 Attack,uint16 MaxHealth,uint16 health)
@@ -256,28 +236,13 @@ uint256 public random;
             _mint(account, newItemId);
 
             level[newItemId] = 1;
-       emit EggMinted(account, 1);
+       emit NFTMinted(account, 1);
     }
 
 
 
-
-
-
-     function randomUniqueNft() internal view returns (uint) {
-        uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, _seed,
-        random)));
-        return rand % 8;
-    }
-
-    function randRarity(uint _randomNum, uint _num) internal view returns(uint16) {
-         uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, _seed, _randomNum))) % _num;
-         return uint16(rand);
-    }
-
-
-    function randomNumProb() internal view returns(Class) {
-        uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, _seed,random))) % 100;
+    function randomNumProb() internal view returns(uint) {
+        uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp,random))) % 100;
         uint[] memory _classProbabilities = new uint[](8);
         _classProbabilities[0] = 68;
         _classProbabilities[1] = 20;
@@ -291,19 +256,19 @@ uint256 public random;
          // Start at top class (length - 1)
         // skip common (0), we default to it{
         if(tokenIds <=20){
-        return Class.Legendary; 
+        return tokenIds; 
         }
         else{
         for (uint i = _classProbabilities.length - 1; i > 0; i--) {
             uint probability = _classProbabilities[i];
             if(rand < probability) {
-                return Class(i);
+                return probability;
             } else {
                 rand = rand - probability;
             }
         }
 
-        return Class.Common; 
+        return rand; 
         }
     }
 
@@ -345,27 +310,27 @@ string memory json;
 
          string memory uri;
 
-         if(level == 1) {
+         
              if(NFTData.speice == 0) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/baby-eagle-complete.mp4";
+                 uri = "";
              } else if(NFTData.speice == 1) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Cockatiel.mp4";
+                 uri = "";
              } else if(NFTData.speice == 2) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Sparrow.mp4";
+                 uri = "";
              } else if(NFTData.speice == 3) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Cardinal.mp4";
+                 uri = "";
              } else if(NFTData.speice == 4) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Vulture.mp4";
+                 uri = "";
              } else if(NFTData.speice == 5) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Swan.mp4";
+                 uri = "";
              }
              else if(NFTData.speice == 6) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Swan.mp4";
+                 uri = "";
              }
              else if(NFTData.speice == 7) {
-                 uri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/Baby%20-%20Swan.mp4";
+                 uri = "";
              }
-         } 
+         
     
         json = Base64.encode(
             bytes(string(
