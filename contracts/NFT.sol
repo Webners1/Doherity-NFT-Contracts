@@ -139,16 +139,17 @@ library Base64 {
 /// @dev See README.md for more information.
 
  struct Attributes {
-        string uniqueAttribute;
-        uint8 speice;
-        uint8 rarity;
-        uint8 BaseTrait;
-        uint8 MaxStamina;
-        uint8 Stamina;
-        uint8 Attack;
-        uint8 MaxHealth;
-        uint8 health;
-        uint8 Level;
+        string name;
+        string description;
+        uint16 speice;
+        uint16 rarity;
+        uint16 BaseTrait;
+        uint16 MaxStamina;
+        uint16 Stamina;
+        uint16 Attack;
+        uint16 MaxHealth;
+        uint16 health;
+        uint16 Level;
 
         //check if attributes are setted
         bool set;
@@ -205,7 +206,7 @@ uint256 public random;
     
 
     // baby.mature,max mature bird level
-    mapping(uint=>uint8) public level;
+    mapping(uint=>uint16) public level;
     mapping(uint=>uint) public _rewardTime;
 
     event EggMinted(address indexed, uint indexed);
@@ -219,7 +220,7 @@ uint256 public random;
 
     function getRarity(uint _tokenId) external virtual view returns(string memory) {
         require(level[_tokenId] > 0, "not hatched yet");
-        uint8 rar = _tokenIdToAttributes[_tokenId].rarity;
+        uint16 rar = _tokenIdToAttributes[_tokenId].rarity;
         if(rar == 0) {
             return "Common";
         } else if(rar == 1) {
@@ -242,88 +243,26 @@ uint256 public random;
     } 
 
 
-    function mintEgg(uint tNumber,address account)
+    function mintEgg(address account,string memory _name, string memory _description,uint16 BaseTrait,uint16 MaxStamina,uint16 Stamina,uint16 Attack,uint16 MaxHealth,uint16 health)
         external
         payable
         onlyOwner
     {
-        require(msg.value >= price*tNumber,"Price is low");
-        for(uint i = 0; i<tNumber; i++) {
-
+        require(msg.value >= price,"Price is low");
              uint256 newItemId = tokenIds++;
+  level[newItemId] = 1;
+
+    _tokenIdToAttributes[newItemId] = selectAttrbiutes(_name,_description,BaseTrait, MaxStamina, Stamina, Attack, MaxHealth, health);
             _mint(account, newItemId);
 
             level[newItemId] = 1;
-        }
-       emit EggMinted(account, tNumber);
+       emit EggMinted(account, 1);
     }
 
 
-    function lockInIncubator(uint _tokenId) public virtual {
-        require(ownerOf(_tokenId) == msg.sender, "Not Owner");
-        require(_eggHatch[_tokenId].hasAlreadyHatched == false, "already hatched");
 
-        _eggHatch[_tokenId].isHatching = true;
-       
-        _eggHatch[_tokenId].hatchTime = block.timestamp + 7 days;
-        emit EggLocked(_tokenId, _eggHatch[_tokenId].hatchTime);
-    }
-    
-    function changeEveryNFTRemainingTime(uint hatchTime) public onlyOwner{
-        for(uint i=0;i<= tokenIds;i++){
-        _eggHatch[i].hatchTime = block.timestamp + hatchTime;
 
-        }
-    }
-function changeHatchTime(uint _tokenId, uint hatchTime)public virtual onlyOwner{
-        require(_eggHatch[_tokenId].hasAlreadyHatched == false, "already hatched");
 
-        _eggHatch[_tokenId].hatchTime = block.timestamp + hatchTime;
-}
-    function hatchRemainingTime(uint _tokenId) public view returns(uint) {
-       
-         if(_eggHatch[_tokenId].hatchTime <= block.timestamp) {
-             return 0;
-         }
-         uint remainTime = _eggHatch[_tokenId].hatchTime - block.timestamp;
-         return remainTime;
-    }
-
-    function hatchEgg(uint _tokenId) public {
-     
-    _eggHatch[_tokenId].isHatching = false;
-
-    level[_tokenId] = 1;
-
-    _tokenIdToAttributes[_tokenId] = selectAttrbiutes();
-    selectRandomNftWithAttributes(_tokenId);
-    emit EggRarity(_tokenId, _tokenIdToAttributes[_tokenId].rarity);
-    }
-
-    function selectRandomNftWithAttributes(uint _tokenId) internal returns(Attributes memory) {
-        uint _rand = randomUniqueNft();
-        if(_rand == 0) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Powerful Sharp Feet";
-            _tokenIdToAttributes[_tokenId].speice = 0;
-        } else if(_rand == 1) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Powerful Beak";
-            _tokenIdToAttributes[_tokenId].speice = 1;
-        } else if(_rand == 2) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Speed";
-            _tokenIdToAttributes[_tokenId].speice = 2;
-        } else if(_rand == 3) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Camoflauge";
-            _tokenIdToAttributes[_tokenId].speice = 3;
-        } else if(_rand == 4) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Strength";
-            _tokenIdToAttributes[_tokenId].speice = 4;
-        } else if(_rand == 5) {
-            _tokenIdToAttributes[_tokenId].uniqueAttribute = "Intelligence";
-            _tokenIdToAttributes[_tokenId].speice = 5;
-        } 
-
-        return _tokenIdToAttributes[_tokenId];
-    }
 
      function randomUniqueNft() internal view returns (uint) {
         uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, _seed,
@@ -331,9 +270,9 @@ function changeHatchTime(uint _tokenId, uint hatchTime)public virtual onlyOwner{
         return rand % 8;
     }
 
-    function randRarity(uint _randomNum, uint _num) internal view returns(uint8) {
+    function randRarity(uint _randomNum, uint _num) internal view returns(uint16) {
          uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, _seed, _randomNum))) % _num;
-         return uint8(rand);
+         return uint16(rand);
     }
 
 
@@ -368,33 +307,35 @@ function changeHatchTime(uint _tokenId, uint hatchTime)public virtual onlyOwner{
         }
     }
 
-    function selectAttrbiutes() internal virtual view returns(Attributes memory){
+    function selectAttrbiutes(string memory _name, string memory _description, uint16 BaseTrait,uint16 MaxStamina,uint16 Stamina,uint16 Attack,uint16 MaxHealth,uint16 health) internal virtual view returns(Attributes memory){
         Attributes memory attr;
         
             
             attr.rarity = 1;
-           attr.BaseTrait = randRarity(230, 15) + 35;
-            attr.MaxStamina = randRarity(10230, 15) + 35;
-            attr.Stamina = randRarity(12200, 15) + 35;
-            attr.Attack = randRarity(10560, 15) + 35;
-            attr.MaxHealth = randRarity(10740, 15) + 35;
-            attr.health = randRarity(10450, 15) + 35;
+            attr.name = _name;
+            attr.description = _description;
+           attr.BaseTrait = BaseTrait;
+            attr.MaxStamina = MaxStamina;
+            attr.Stamina = Stamina;
+            attr.Attack = Attack;
+            attr.MaxHealth = MaxHealth;
+            attr.health = health;
             attr.set = true;
            
 
        
 return attr;
     }
-      function getTokenURI( uint tokenId,Attributes memory NFTData,uint level) public (nftTokenURI)  view  returns (string memory) {
+      function getTokenURI( uint tokenId,Attributes memory NFTData,uint level) public  view  returns (string memory) {
     string memory _eggUri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/video_2022-04-15_14-40-52.mp4";
 string memory json;
          if(NFTData.set == false) {
              json = Base64.encode(
             bytes(string(
                 abi.encodePacked(
-                    "{'name': '", Strings.toString(tokenId), "',",
+                    "{'name': '", NFTData.name, "',",
                     "'image_data': '", _eggUri, "',",
-                    "'description': '", "An Egg'",
+                    "'description': '", NFTData.description,"',"
                     "}"   
                 )
             ))
@@ -433,7 +374,6 @@ string memory json;
                     "'image_data': '", uri, "',",
                     // "'description': '", "Bird'", ",",
                     "'attributes': [{'trait_type': 'Base Trait', 'value': '", NFTData.BaseTrait, "'},",
-                    "{'trait_type': 'Attribute', 'value': '", NFTData.uniqueAttribute, "'},",
                     "{'trait_type': 'Max Stamina', 'value': '", Strings.toString(NFTData.MaxStamina), "'},",
                     "{'trait_type': 'Level', 'value': '", Strings.toString(NFTData.Level), "'},",
                     "{'trait_type': 'Rarity', 'value': '", Strings.toString(NFTData.rarity), "'},",
