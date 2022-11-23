@@ -175,7 +175,6 @@ contract NFT is ERC721, Ownable {
   
 
 address private _burnAddress;
-uint256 public random;
  constructor()ERC721("MyToken", "MTK"){
    
      
@@ -195,11 +194,6 @@ uint256 public random;
 
     event NFTMinted(address indexed, uint indexed);
 
-
-   
-
-
-
     function getRarity(uint _tokenId) external virtual view returns(string memory) {
         require(level[_tokenId] > 0, "not hatched yet");
         uint16 rar = _tokenIdToAttributes[_tokenId].rarity;
@@ -214,15 +208,6 @@ uint256 public random;
         }
         return "Common";
     } 
-
-  
-    
-   
-
-  
-   
-
-
     function mintEgg(address account,string memory _name, string memory _description,uint16 BaseTrait,uint16 MaxStamina,uint16 Stamina,uint16 Attack,uint16 MaxHealth,uint16 health)
         external
         payable
@@ -241,36 +226,7 @@ uint256 public random;
 
 
 
-    function randomNumProb() internal view returns(uint) {
-        uint rand =  uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp,random))) % 100;
-        uint[] memory _classProbabilities = new uint[](8);
-        _classProbabilities[0] = 68;
-        _classProbabilities[1] = 20;
-        _classProbabilities[2] = 10;
-        _classProbabilities[3] = 2;
-        _classProbabilities[4] = 2;
-        _classProbabilities[5] = 2;
-        _classProbabilities[6] = 2;
-        _classProbabilities[7] = 2;
-        
-         // Start at top class (length - 1)
-        // skip common (0), we default to it{
-        if(tokenIds <=20){
-        return tokenIds; 
-        }
-        else{
-        for (uint i = _classProbabilities.length - 1; i > 0; i--) {
-            uint probability = _classProbabilities[i];
-            if(rand < probability) {
-                return probability;
-            } else {
-                rand = rand - probability;
-            }
-        }
-
-        return rand; 
-        }
-    }
+   
 
     function selectAttrbiutes(string memory _name, string memory _description, uint16 BaseTrait,uint16 MaxStamina,uint16 Stamina,uint16 Attack,uint16 MaxHealth,uint16 health) internal virtual view returns(Attributes memory){
         Attributes memory attr;
