@@ -241,11 +241,9 @@ address private _burnAddress;
             attr.Attack = Attack;
             attr.MaxHealth = MaxHealth;
             attr.health = health;
-            attr.set = true;
-           
-
-       
+            attr.set = true;   
 return attr;
+
     }
       function getTokenURI( uint tokenId,Attributes memory NFTData,uint level) public  view  returns (string memory) {
     string memory _eggUri = "https://astrobirdz.mypinata.cloud/ipfs/QmVWCtAxaRVktazv4JddXMhMZYAUNRWrvZoDGQhmuy64Hp/video_2022-04-15_14-40-52.mp4";
