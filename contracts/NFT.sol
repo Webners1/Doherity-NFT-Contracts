@@ -294,14 +294,6 @@ struct Attributes {
     bool set;
 }
 
-interface nftTokenURI {
-    function getTokenURI(
-        uint256 _tokenId,
-        Attributes memory NFTData,
-        uint256 level
-    ) external view returns (string memory);
-}
-
 contract AaronNFT is ERC721, Ownable {
     uint256 public tokenIds;
 
@@ -310,24 +302,25 @@ contract AaronNFT is ERC721, Ownable {
 
   mapping(uint=>Attributes) public _tokenIdToAttributes;
     // Starts From 0
-    
+    string public notRevealedUri;
     address private _burnAddress;
     QrngRandom public QRNG;
 
-    constructor(address qrngRandom) ERC721("MyToken", "MTK") {
+    constructor(address qrngRandom,  string memory _initNotRevealedUri) ERC721("MyToken", "MTK") {
         QRNG= QrngRandom(qrngRandom);
         // Starts From 0
+        notRevealedUri = _initNotRevealedUri;
     }
 
 
     // baby.mature,max mature bird level
     mapping(uint256 => uint8) public level;
-
+      bool public revealed = false;
     event Minted(address indexed, uint256 indexed);
     event Rarity(uint256 indexed, uint256 indexed);
 
 
-    function mintEgg(uint256 tNumber, address account)
+    function mint(uint256 tNumber, address account)
         external
         payable
         onlyOwner
@@ -359,7 +352,7 @@ contract AaronNFT is ERC721, Ownable {
                 abi.encodePacked(QRNG.getLatestRandom(), block.timestamp)
             )
         );
-        return rand % 5;
+        return rand % 8;
     }
 
     function randRarity(uint256 _num) internal view returns (uint8) {
@@ -375,6 +368,10 @@ contract AaronNFT is ERC721, Ownable {
         return uint8(rand);
     }
 
+     function reveal() public onlyOwner {
+      revealed = true;
+  }
+    
     function selectAttrbiutes()
         internal
         view
@@ -383,7 +380,7 @@ contract AaronNFT is ERC721, Ownable {
     {
         Attributes memory attr;
 
-        attr.rarity = 1;
+        attr.rarity = 5;
         attr.BaseTrait = "Anomaly";
         attr.ExperiencePoint = 0;
         attr.MaxStamina =  300;
@@ -404,6 +401,9 @@ contract AaronNFT is ERC721, Ownable {
         override(ERC721)
         returns (string memory)
     {
+        if(revealed == false){
+             return notRevealedUri;
+        }
         return
             getTokenURI(
                 tokenId,
@@ -412,21 +412,8 @@ contract AaronNFT is ERC721, Ownable {
             );
     }
     function getTokenURI( uint tokenId,Attributes memory NFTData,uint level) public view  returns (string memory) {
-    string memory _eggUri = "";
-string memory json;
-         if(NFTData.set == false) {
-             json = Base64.encode(
-            bytes(string(
-                abi.encodePacked(
-                    "{'name': '", Strings.toString(tokenId), "',",
-                    "'image_data': '", _eggUri, "',",
-                    "'description': '", "An Egg'",
-                    "}"   
-                )
-            ))
-        );
-        return string(abi.encodePacked("data:application/json;base64,", json));
-        }
+        string memory json;
+        
 
          string memory uri;
 
