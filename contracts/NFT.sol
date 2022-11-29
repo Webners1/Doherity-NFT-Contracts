@@ -2,17 +2,19 @@ import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
 import "@openzeppelin/contracts/utils/Strings.sol";
+
 library Base64 {
-    string internal constant TABLE_ENCODE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    bytes  internal constant TABLE_DECODE = hex"0000000000000000000000000000000000000000000000000000000000000000"
-                                            hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
-                                            hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
-                                            hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
+    string internal constant TABLE_ENCODE =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    bytes internal constant TABLE_DECODE =
+        hex"0000000000000000000000000000000000000000000000000000000000000000"
+        hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
+        hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
+        hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
 
     function encode(bytes memory data) internal pure returns (string memory) {
-        if (data.length == 0) return '';
+        if (data.length == 0) return "";
 
         // load the table into memory
         string memory table = TABLE_ENCODE;
@@ -38,27 +40,43 @@ library Base64 {
             let resultPtr := add(result, 32)
 
             // run over the input, 3 bytes at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
                 // read 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
 
                 // write 4 characters
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(18, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(12, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr( 6, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(6, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(        input,  0x3F))))
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
                 resultPtr := add(resultPtr, 1)
             }
 
             // padding with '='
             switch mod(mload(data), 3)
-            case 1 { mstore(sub(resultPtr, 2), shl(240, 0x3d3d)) }
-            case 2 { mstore(sub(resultPtr, 1), shl(248, 0x3d)) }
+            case 1 {
+                mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
+            }
+            case 2 {
+                mstore(sub(resultPtr, 1), shl(248, 0x3d))
+            }
         }
 
         return result;
@@ -103,20 +121,42 @@ library Base64 {
             let resultPtr := add(result, 32)
 
             // run over the input, 4 characters at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
-               // read 4 characters
-               dataPtr := add(dataPtr, 4)
-               let input := mload(dataPtr)
+            for {
 
-               // write 3 bytes
-               let output := add(
-                   add(
-                       shl(18, and(mload(add(tablePtr, and(shr(24, input), 0xFF))), 0xFF)),
-                       shl(12, and(mload(add(tablePtr, and(shr(16, input), 0xFF))), 0xFF))),
-                   add(
-                       shl( 6, and(mload(add(tablePtr, and(shr( 8, input), 0xFF))), 0xFF)),
-                               and(mload(add(tablePtr, and(        input , 0xFF))), 0xFF)
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // read 4 characters
+                dataPtr := add(dataPtr, 4)
+                let input := mload(dataPtr)
+
+                // write 3 bytes
+                let output := add(
+                    add(
+                        shl(
+                            18,
+                            and(
+                                mload(add(tablePtr, and(shr(24, input), 0xFF))),
+                                0xFF
+                            )
+                        ),
+                        shl(
+                            12,
+                            and(
+                                mload(add(tablePtr, and(shr(16, input), 0xFF))),
+                                0xFF
+                            )
+                        )
+                    ),
+                    add(
+                        shl(
+                            6,
+                            and(
+                                mload(add(tablePtr, and(shr(8, input), 0xFF))),
+                                0xFF
+                            )
+                        ),
+                        and(mload(add(tablePtr, and(input, 0xFF))), 0xFF)
                     )
                 )
                 mstore(resultPtr, shl(232, output))
@@ -127,6 +167,7 @@ library Base64 {
         return result;
     }
 }
+
 /// @title Example contract that uses Airnode RRP to receive QRNG services
 /// @notice This contract is not secure. Do not use it in production. Refer to
 /// the contract for more information.
@@ -159,7 +200,9 @@ contract QrngRandom is RrpRequesterV0, Ownable {
     /// that will be fulfilled by its sponsor wallet. See the Airnode protocol
     /// docs about sponsorship for more information.
     /// @param _airnodeRrp Airnode RRP contract address
-    constructor(address _airnodeRrp, address _NFTContract) RrpRequesterV0(_airnodeRrp) {
+    constructor(address _airnodeRrp, address _NFTContract)
+        RrpRequesterV0(_airnodeRrp)
+    {
         NFT_CONTRACT = _NFTContract;
     }
 
@@ -300,31 +343,36 @@ contract AaronNFT is ERC721, Ownable {
     // Rarity Classes
     uint256 public price = 0.5 ether;
 
-  mapping(uint=>Attributes) public _tokenIdToAttributes;
+    mapping(uint256 => Attributes) public _tokenIdToAttributes;
     // Starts From 0
     string public notRevealedUri;
     address private _burnAddress;
     QrngRandom public QRNG;
-    mapping(uint256=> uint256)public NFTBatch;
-    constructor(address qrngRandom,  string memory _initNotRevealedUri) ERC721("MyToken", "MTK") {
-        QRNG= QrngRandom(qrngRandom);
+    mapping(uint256 => uint256) public NFTBatch;
+
+    constructor(address qrngRandom, string memory _initNotRevealedUri)
+        ERC721("MyToken", "MTK")
+    {
+        QRNG = QrngRandom(qrngRandom);
         // Starts From 0
         notRevealedUri = _initNotRevealedUri;
+        NFTBatch[0] = 1000;
+        NFTBatch[1] = 500;
+        NFTBatch[2] = 375;
+        NFTBatch[3] = 250;
+        NFTBatch[4] = 175;
+        NFTBatch[5] = 125;
+        NFTBatch[6] = 50;
+        NFTBatch[7] = 25;
     }
-
 
     // baby.mature,max mature bird level
     mapping(uint256 => uint8) public level;
-      bool public revealed = false;
+    bool public revealed = false;
     event Minted(address indexed, uint256 indexed);
     event Rarity(uint256 indexed, uint256 indexed);
 
-
-    function mint(uint256 tNumber, address account)
-        external
-        payable
-        onlyOwner
-    {
+    function mint(uint256 tNumber, address account) external payable onlyOwner {
         require(msg.value >= price * tNumber, "Price is low");
         for (uint256 i = 0; i < tNumber; i++) {
             uint256 newItemId = tokenIds++;
@@ -342,22 +390,20 @@ contract AaronNFT is ERC721, Ownable {
         returns (Attributes memory)
     {
         uint256 _rand = randomNumProb();
-            _tokenIdToAttributes[_tokenId].speice = uint8(_rand);
+        _tokenIdToAttributes[_tokenId].speice = uint8(_rand);
         return _tokenIdToAttributes[_tokenId];
     }
 
     function randomUniqueNft() internal view returns (uint256) {
         uint256 rand = uint256(
-            keccak256(
-                abi.encodePacked(QRNG.getLatestRandom(), block.timestamp)
-            )
+            keccak256(abi.encodePacked(QRNG.getLatestRandom(), block.timestamp))
         );
         return rand % 7;
     }
 
-    function randomNumProb() internal returns(uint) {
-        uint rand = randRarity(2500);
-        uint[] memory _classProbabilities = new uint[](8);
+    function randomNumProb() internal returns (uint256) {
+        uint256 rand = randRarity(2500);
+        uint256[] memory _classProbabilities = new uint256[](8);
         _classProbabilities[0] = NFTBatch[0];
         _classProbabilities[1] = NFTBatch[1];
         _classProbabilities[2] = NFTBatch[2];
@@ -366,34 +412,30 @@ contract AaronNFT is ERC721, Ownable {
         _classProbabilities[5] = NFTBatch[5];
         _classProbabilities[6] = NFTBatch[6];
         _classProbabilities[7] = NFTBatch[7];
-        
-         // Start at top class (length - 1)
+
+        // Start at top class (length - 1)
         // skip common (0), we default to it{
-      
-       
-        for (uint i = _classProbabilities.length - 1; i > 0; i--) {
-            uint probability = _classProbabilities[i];
-            if(rand < probability) {
+
+        for (uint256 i = _classProbabilities.length - 1; i > 0; i--) {
+            uint256 probability = _classProbabilities[i];
+            if (rand < probability) {
                 NFTBatch[i] = NFTBatch[i] - 1;
                 return i;
             } else {
                 rand = rand - probability;
             }
         }
-        NFTBatch[0] =  NFTBatch[0] - 1;
-        if(NFTBatch[0] > 0){
-        return 0; 
-        }
-        else{
-            for(uint index; index<8;index++){
-            if(NFTBatch[index]>0){
-                return index;
+        NFTBatch[0] = NFTBatch[0] - 1;
+        if (NFTBatch[0] > 0) {
+            return 0;
+        } else {
+            for (uint256 index; index < 8; index++) {
+                if (NFTBatch[index] > 0) {
+                    return index;
+                }
             }
-            }
         }
-        
     }
-
 
     function randRarity(uint256 _num) internal view returns (uint256) {
         uint256 rand = uint256(
@@ -408,10 +450,10 @@ contract AaronNFT is ERC721, Ownable {
         return rand;
     }
 
-     function reveal() public onlyOwner {
-      revealed = true;
-  }
-    
+    function reveal() public onlyOwner {
+        revealed = true;
+    }
+
     function selectAttrbiutes()
         internal
         view
@@ -423,8 +465,8 @@ contract AaronNFT is ERC721, Ownable {
         attr.rarity = 5;
         attr.BaseTrait = "Anomaly";
         attr.ExperiencePoint = 0;
-        attr.MaxStamina =  300;
-        attr.Stamina =  300;
+        attr.MaxStamina = 300;
+        attr.Stamina = 300;
         attr.Attack = randRarity(100) + 350;
         attr.Defense = randRarity(100) + 350;
         attr.MaxHealth = 100;
@@ -441,65 +483,88 @@ contract AaronNFT is ERC721, Ownable {
         override(ERC721)
         returns (string memory)
     {
-        if(revealed == false){
-             return notRevealedUri;
+        if (revealed == false) {
+            return notRevealedUri;
         }
         return
-            getTokenURI(
-                tokenId,
-                _tokenIdToAttributes[tokenId],
-                level[tokenId]
-            );
+            getTokenURI(tokenId, _tokenIdToAttributes[tokenId], level[tokenId]);
     }
-    function getTokenURI( uint tokenId,Attributes memory NFTData,uint level) public view  returns (string memory) {
+
+    function getTokenURI(
+        uint256 tokenId,
+        Attributes memory NFTData,
+        uint256 level
+    ) public view returns (string memory) {
         string memory json;
-        
 
-         string memory uri;
+        string memory uri;
 
-         if(level == 1) {
-             if(NFTData.speice == 0) {
-                 uri = "";
-             } else if(NFTData.speice == 1) {
-                 uri = "";
-             } else if(NFTData.speice == 2) {
-                 uri = "";
-             } else if(NFTData.speice == 3) {
-                 uri = "";
-             } else if(NFTData.speice == 4) {
-                 uri = "";
-             } else if(NFTData.speice == 5) {
-                 uri = "";
-             }
-             else if(NFTData.speice == 6) {
-                 uri = "";
-             }
-             else if(NFTData.speice == 7) {
-                 uri = "";
-             }
-         } 
-    
+        if (level == 1) {
+            if (NFTData.speice == 0) {
+                uri = "";
+            } else if (NFTData.speice == 1) {
+                uri = "";
+            } else if (NFTData.speice == 2) {
+                uri = "";
+            } else if (NFTData.speice == 3) {
+                uri = "";
+            } else if (NFTData.speice == 4) {
+                uri = "";
+            } else if (NFTData.speice == 5) {
+                uri = "";
+            } else if (NFTData.speice == 6) {
+                uri = "";
+            } else if (NFTData.speice == 7) {
+                uri = "";
+            }
+        }
+
         json = Base64.encode(
-            bytes(string(
-                abi.encodePacked(
-                    "{'name': '", Strings.toString(tokenId), "',",
-                    "'image_data': '", uri, "',",
-                    // "'description': '", "Bird'", ",",
-                    "'attributes': [{'trait_type': 'Base Trait', 'value': '", NFTData.BaseTrait, "'},",
-                    "{'trait_type': 'Experience Points', 'value': '", Strings.toString(NFTData.ExperiencePoint), "'},",
-                    "{'trait_type': 'Max Stamina', 'value': '", Strings.toString(NFTData.MaxStamina), "'},",
-                    "{'trait_type': 'Level', 'value': '", Strings.toString(NFTData.Level), "'},",
-                    "{'trait_type': 'Rarity', 'value': '", Strings.toString(NFTData.rarity), "'},",
-                    "{'trait_type': 'Stamina', 'value': '", Strings.toString(NFTData.Stamina), "'},",
-                    "{'trait_type': 'Attack Power', 'value': '", Strings.toString(NFTData.Attack), "'},",
-                    "{'trait_type': 'Defense Points', 'value': '", Strings.toString(NFTData.Defense), "'},",
-                    "{'trait_type': 'Max Health Points', 'value': '", Strings.toString(NFTData.MaxHealth), "'},",
-                    "{'trait_type': 'Health Points', 'value': '", Strings.toString(NFTData.health), "'}",
-                    "]}"
-                    
+            bytes(
+                string(
+                    abi.encodePacked(
+                        "{'name': '",
+                        Strings.toString(tokenId),
+                        "',",
+                        "'image_data': '",
+                        uri,
+                        "',",
+                        // "'description': '", "Bird'", ",",
+                        "'attributes': [{'trait_type': 'Base Trait', 'value': '",
+                        NFTData.BaseTrait,
+                        "'},",
+                        "{'trait_type': 'Experience Points', 'value': '",
+                        Strings.toString(NFTData.ExperiencePoint),
+                        "'},",
+                        "{'trait_type': 'Max Stamina', 'value': '",
+                        Strings.toString(NFTData.MaxStamina),
+                        "'},",
+                        "{'trait_type': 'Level', 'value': '",
+                        Strings.toString(NFTData.Level),
+                        "'},",
+                        "{'trait_type': 'Rarity', 'value': '",
+                        Strings.toString(NFTData.rarity),
+                        "'},",
+                        "{'trait_type': 'Stamina', 'value': '",
+                        Strings.toString(NFTData.Stamina),
+                        "'},",
+                        "{'trait_type': 'Attack Power', 'value': '",
+                        Strings.toString(NFTData.Attack),
+                        "'},",
+                        "{'trait_type': 'Defense Points', 'value': '",
+                        Strings.toString(NFTData.Defense),
+                        "'},",
+                        "{'trait_type': 'Max Health Points', 'value': '",
+                        Strings.toString(NFTData.MaxHealth),
+                        "'},",
+                        "{'trait_type': 'Health Points', 'value': '",
+                        Strings.toString(NFTData.health),
+                        "'}",
+                        "]}"
+                    )
                 )
-            ))
+            )
         );
         return string(abi.encodePacked("data:application/json;base64,", json));
-     }
+    }
 }
