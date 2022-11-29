@@ -305,7 +305,7 @@ contract AaronNFT is ERC721, Ownable {
     string public notRevealedUri;
     address private _burnAddress;
     QrngRandom public QRNG;
-
+    mapping(uint256=> uint256)public NFTBatch;
     constructor(address qrngRandom,  string memory _initNotRevealedUri) ERC721("MyToken", "MTK") {
         QRNG= QrngRandom(qrngRandom);
         // Starts From 0
@@ -341,7 +341,7 @@ contract AaronNFT is ERC721, Ownable {
         internal
         returns (Attributes memory)
     {
-        uint256 _rand = randomUniqueNft();
+        uint256 _rand = randomNumProb();
             _tokenIdToAttributes[_tokenId].speice = uint8(_rand);
         return _tokenIdToAttributes[_tokenId];
     }
@@ -352,10 +352,50 @@ contract AaronNFT is ERC721, Ownable {
                 abi.encodePacked(QRNG.getLatestRandom(), block.timestamp)
             )
         );
-        return rand % 8;
+        return rand % 7;
     }
 
-    function randRarity(uint256 _num) internal view returns (uint8) {
+    function randomNumProb() internal returns(uint) {
+        uint rand = randRarity(2500);
+        uint[] memory _classProbabilities = new uint[](8);
+        _classProbabilities[0] = NFTBatch[0];
+        _classProbabilities[1] = NFTBatch[1];
+        _classProbabilities[2] = NFTBatch[2];
+        _classProbabilities[2] = NFTBatch[3];
+        _classProbabilities[4] = NFTBatch[4];
+        _classProbabilities[5] = NFTBatch[5];
+        _classProbabilities[6] = NFTBatch[6];
+        _classProbabilities[7] = NFTBatch[7];
+        
+         // Start at top class (length - 1)
+        // skip common (0), we default to it{
+      
+       
+        for (uint i = _classProbabilities.length - 1; i > 0; i--) {
+            uint probability = _classProbabilities[i];
+            if(rand < probability) {
+                NFTBatch[i] = NFTBatch[i] - 1;
+                return i;
+            } else {
+                rand = rand - probability;
+            }
+        }
+        NFTBatch[0] =  NFTBatch[0] - 1;
+        if(NFTBatch[0] > 0){
+        return 0; 
+        }
+        else{
+            for(uint index; index<8;index++){
+            if(NFTBatch[index]>0){
+                return index;
+            }
+            }
+        }
+        
+    }
+
+
+    function randRarity(uint256 _num) internal view returns (uint256) {
         uint256 rand = uint256(
             keccak256(
                 abi.encodePacked(
@@ -365,7 +405,7 @@ contract AaronNFT is ERC721, Ownable {
                 )
             )
         ) % _num;
-        return uint8(rand);
+        return rand;
     }
 
      function reveal() public onlyOwner {
