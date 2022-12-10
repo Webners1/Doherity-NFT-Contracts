@@ -367,7 +367,7 @@ contract AaronNFT is ERC721,AccessControl {
           _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     function grantNFTRole(address _NFT_EDITOR_ROLE)public onlyRole(DEFAULT_ADMIN_ROLE){
-        _grantRole(_NFT_EDITOR_ROLE);
+        _grantRole(NFT_EDITOR_ROLE,_NFT_EDITOR_ROLE);
     }
     // baby.mature,max mature bird level
     mapping(uint256 => uint8) public level;
