@@ -57,7 +57,7 @@ async function main() {
     Staking = await Staking.deploy(NFT.address)
     await Staking.deployed()
 
-
+await NFT.grantNFTRole(Staking.address);
     // await NFT.filterDailyList()
     console.log("NFT:", NFT.address)
     console.log("Staking:", Staking.address)
