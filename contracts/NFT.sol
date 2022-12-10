@@ -1,7 +1,7 @@
 import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 library Base64 {
@@ -337,9 +337,9 @@ struct Attributes {
     bool set;
 }
 
-contract AaronNFT is ERC721, Ownable {
+contract AaronNFT is ERC721,AccessControl {
     uint256 public tokenIds;
-
+     bytes32 public constant NFT_EDITOR_ROLE = keccak256("NFT_EDITOR_ROLE");
     // Rarity Classes
     uint256 public price = 0.5 ether;
 
@@ -350,7 +350,7 @@ contract AaronNFT is ERC721, Ownable {
     QrngRandom public QRNG;
     mapping(uint256 => uint256) public NFTBatch;
 
-    constructor(address qrngRandom, string memory _initNotRevealedUri)
+    constructor(address qrngRandom, string memory _initNotRevealedUri,address StakingContract)
         ERC721("MyToken", "MTK")
     {
         QRNG = QrngRandom(qrngRandom);
@@ -364,15 +364,18 @@ contract AaronNFT is ERC721, Ownable {
         NFTBatch[5] = 125;
         NFTBatch[6] = 50;
         NFTBatch[7] = 25;
+          _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-
+    function grantNFTRole(address _NFT_EDITOR_ROLE)public onlyRole(DEFAULT_ADMIN_ROLE){
+_grantRole(_NFT_EDITOR_ROLE);
+    }
     // baby.mature,max mature bird level
     mapping(uint256 => uint8) public level;
     bool public revealed = false;
     event Minted(address indexed, uint256 indexed);
     event Rarity(uint256 indexed, uint256 indexed);
 
-    function mint(uint256 tNumber, address account) external payable onlyOwner {
+    function mint(uint256 tNumber, address account) external payable onlyRole(DEFAULT_ADMIN_ROLE) {
         require(msg.value >= price * tNumber, "Price is low");
         for (uint256 i = 0; i < tNumber; i++) {
             uint256 newItemId = tokenIds++;
@@ -393,6 +396,35 @@ contract AaronNFT is ERC721, Ownable {
         _tokenIdToAttributes[_tokenId].speice = uint8(_rand);
         return _tokenIdToAttributes[_tokenId];
     }
+
+     function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function updateTraits(uint256 tokenId,
+    uint8 ExperiencePoint,
+    uint8 rarity,
+    uint256 Stamina,
+    uint256 Attack,
+    uint8 MaxHealth,
+    uint256 Defense,
+    uint8 health,
+    uint8 Level) public onlyRole(NFT_EDITOR_ROLE) {
+        
+    _tokenIdToAttributes[tokenId].ExperiencePoint = ExperiencePoint;
+    _tokenIdToAttributes[tokenId].rarity = rarity;
+    _tokenIdToAttributes[tokenId].Stamina = Stamina;
+    _tokenIdToAttributes[tokenId].Attack = Attack;
+    _tokenIdToAttributes[tokenId].MaxHealth = MaxHealth;
+    _tokenIdToAttributes[tokenId].Defense = Defense;
+    _tokenIdToAttributes[tokenId].health = health;
+    _tokenIdToAttributes[tokenId].Level = Level;
+           }
 
     function randomUniqueNft() internal view returns (uint256) {
         uint256 rand = uint256(
@@ -450,7 +482,7 @@ contract AaronNFT is ERC721, Ownable {
         return rand;
     }
 
-    function reveal() public onlyOwner {
+    function reveal() public onlyRole(DEFAULT_ADMIN_ROLE) {
         revealed = true;
     }
 
@@ -472,9 +504,9 @@ contract AaronNFT is ERC721, Ownable {
         attr.MaxHealth = 100;
         attr.health = 100;
         attr.set = true;
-
         return attr;
     }
+     
 
     function tokenURI(uint256 tokenId)
         public

@@ -1,5 +1,5 @@
 const hre = require('hardhat');
-const apis = require('../data/apis.json');
+const apis = require('../data/api.json');
 const airnodeProtocol = require('@api3/airnode-protocol');
 const amounts = {
     goerli: { value: 0.1, unit: 'ETH' },
@@ -49,14 +49,18 @@ async function main() {
         `Funding sponsor wallet at ${sponsorWalletAddress} with ${amountInEther} ${amounts[hre.network.name].unit}...`
     );
     let NFT = await ethers.getContractFactory("AaronNFT")
+    let Staking = await ethers.getContractFactory("Staking")
 
 
     NFT = await NFT.deploy(qrngRandom.address)
-
     await NFT.deployed()
+    Staking = await Staking.deploy(NFT.address)
+    await Staking.deployed()
+
 
     // await NFT.filterDailyList()
     console.log("NFT:", NFT.address)
+    console.log("Staking:", Staking.address)
 }
 
 main()
