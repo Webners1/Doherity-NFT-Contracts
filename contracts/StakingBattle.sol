@@ -20,17 +20,17 @@ interface IERC165 {
 }
 struct Attributes {
     string uniqueAttribute;
-    uint8 speice;
-    uint8 ExperiencePoint;
-    uint8 rarity;
+    uint256 speice;
+    uint256 ExperiencePoint;
+    uint256 rarity;
     string BaseTrait;
     uint256 MaxStamina;
     uint256 Stamina;
     uint256 Attack;
-    uint8 MaxHealth;
+    uint256 MaxHealth;
     uint256 Defense;
-    uint8 health;
-    uint8 Level;
+    uint256 health;
+    uint256 Level;
     //check if attributes are setted
     bool set;
 }
@@ -130,14 +130,14 @@ interface INFT is IERC165 {
      * Emits a {Transfer} event.
      */
      function updateTraits(
-       uint8 ExperiencePoint,
-    uint8 rarity,
+       uint256 ExperiencePoint,
+    uint256 rarity,
     uint256 Stamina,
     uint256 Attack,
-    uint8 MaxHealth,
+    uint256 MaxHealth,
     uint256 Defense,
-    uint8 health,
-    uint8 Level,
+    uint256 health,
+    uint256 Level,
     uint256 tokenId
     ) external;
 
@@ -253,12 +253,9 @@ contract Staking is Initializable, PausableUpgradeable, OwnableUpgradeable, UUPS
 
     function _claim(address account, uint256 tokenId) internal returns(bool){
 
-   
+    
       Stake memory staked = vault[tokenId];
       require(staked.owner == account, "not an owner");
-      uint256 stakedAt = staked.timestamp;
-      require(staked.owner == msg.sender, "not an owner");
-
       delete vault[tokenId];
       emit NFTUnstaked(account, tokenId, block.timestamp);
       NFT.transferFrom(address(this), account, tokenId);
@@ -266,17 +263,19 @@ contract Staking is Initializable, PausableUpgradeable, OwnableUpgradeable, UUPS
     return true;
   }
 
-   function claim(uint256 tokenId,   uint8 ExperiencePoint,
-    uint8 rarity,
+   function claim(uint256 tokenId, 
+   address owner,
+     uint256 ExperiencePoint,
+    uint256 rarity,
     uint256 Stamina,
     uint256 Attack,
-    uint8 MaxHealth,
+    uint256 MaxHealth,
     uint256 Defense,
-    uint8 health,
-    uint8 Level
-) external {
+    uint256 health,
+    uint256 Level
+) external onlyOwner{
    
-      require(_claim(msg.sender, tokenId));
+      require(_claim(owner, tokenId));
     NFT.updateTraits(ExperiencePoint,
     rarity,
     Stamina,

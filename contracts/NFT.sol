@@ -519,33 +519,34 @@ contract AaronNFT is ERC721,AccessControl {
             return notRevealedUri;
         }
         return
-            getTokenURI(tokenId, _tokenIdToAttributes[tokenId], level[tokenId]);
+            getTokenURI(tokenId, _tokenIdToAttributes[tokenId]);
     }
 
     function getTokenURI(
         uint256 tokenId,
-        Attributes memory NFTData,
-        uint256 level
+        Attributes memory NFTData
     ) public view returns (string memory) {
         string memory json;
 
         string memory uri;
-
-        if (level == 1) {
+        if(revealed==false){
+            uri = "https://gateway.pinata.cloud/ipfs/QmV9UNxfCLCUZpmkWwEkHxgRu2JizGFSfjNVjysJ5knAEu";
+        }
+       else if (NFTData.Level == 1 && revealed) {
             if (NFTData.speice == 0) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/1.png";
             } else if (NFTData.speice == 1) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/2.png";
             } else if (NFTData.speice == 2) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/3.png";
             } else if (NFTData.speice == 3) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/4.png";
             } else if (NFTData.speice == 4) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/5.png";
             } else if (NFTData.speice == 5) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/6.png";
             } else if (NFTData.speice == 6) {
-                uri = "";
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/7.png";
             } else if (NFTData.speice == 7) {
                 uri = "";
             }
