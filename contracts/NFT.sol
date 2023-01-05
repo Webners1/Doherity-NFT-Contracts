@@ -533,9 +533,10 @@ contract AaronNFT is ERC721,AccessControl {
             uri = "https://gateway.pinata.cloud/ipfs/QmV9UNxfCLCUZpmkWwEkHxgRu2JizGFSfjNVjysJ5knAEu";
         }
        else if (NFTData.Level == 1 && revealed) {
-            if (NFTData.speice == 0) {
-                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/1.png";
-            } else if (NFTData.speice == 1) {
+         if (NFTData.speice == 0) {
+                uri = "https://gateway.pinata.cloud/ipfs/QmUBP96KfkKXtd71soNLS3J4axmFVJfuQgwBShobeoWGyg";
+            }
+             else if (NFTData.speice == 1) {
                 uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/2.png";
             } else if (NFTData.speice == 2) {
                 uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/3.png";
@@ -547,8 +548,9 @@ contract AaronNFT is ERC721,AccessControl {
                 uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/6.png";
             } else if (NFTData.speice == 6) {
                 uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/7.png";
-            } else if (NFTData.speice == 7) {
-                uri = "";
+            } 
+            else if (NFTData.speice == 7) {
+                uri = "https://gateway.pinata.cloud/ipfs/QmW31yZScQrCzpFeZJaPRYkvStW7xWBGbR3yywNES7MPGg/1.png";
             }
         }
 
