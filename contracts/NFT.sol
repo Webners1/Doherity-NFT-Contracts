@@ -198,7 +198,7 @@ contract AaronNFT is ERC721,AccessControl {
         _grantRole(NFT_EDITOR_ROLE,_NFT_EDITOR_ROLE);
     }
     // baby.mature,max mature bird level
-    mapping(uint256 => uint8) public level;
+    mapping(uint256 => uint256) public level;
     bool public revealed = false;
     event Minted(address indexed, uint256 indexed);
     event Rarity(uint256 indexed, uint256 indexed);
@@ -221,7 +221,7 @@ contract AaronNFT is ERC721,AccessControl {
         returns (Attributes memory)
     {
         uint256 _rand = randomNumProb();
-        _tokenIdToAttributes[_tokenId].speice = uint8(_rand);
+        _tokenIdToAttributes[_tokenId].speice = uint256(_rand);
         return _tokenIdToAttributes[_tokenId];
     }
 
@@ -235,14 +235,14 @@ contract AaronNFT is ERC721,AccessControl {
     }
 
     function updateTraits(uint256 tokenId,
-    uint8 ExperiencePoint,
-    uint8 rarity,
+    uint256 ExperiencePoint,
+    uint256 rarity,
     uint256 Stamina,
     uint256 Attack,
-    uint8 MaxHealth,
+    uint256 MaxHealth,
     uint256 Defense,
-    uint8 health,
-    uint8 Level) public onlyRole(NFT_EDITOR_ROLE) {
+    uint256 health,
+    uint256 Level) public onlyRole(NFT_EDITOR_ROLE) {
         
     _tokenIdToAttributes[tokenId].ExperiencePoint = ExperiencePoint;
     _tokenIdToAttributes[tokenId].rarity = rarity;

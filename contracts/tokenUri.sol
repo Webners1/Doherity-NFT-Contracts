@@ -167,17 +167,17 @@ library Base64 {
 }
 struct Attributes {
     string uniqueAttribute;
-    uint8 speice;
-    uint8 ExperiencePoint;
-    uint8 rarity;
+    uint256 speice;
+    uint256 ExperiencePoint;
+    uint256 rarity;
     string BaseTrait;
     uint256 MaxStamina;
     uint256 Stamina;
     uint256 Attack;
-    uint8 MaxHealth;
+    uint256 MaxHealth;
     uint256 Defense;
-    uint8 health;
-    uint8 Level;
+    uint256 health;
+    uint256 Level;
     //check if attributes are setted
     bool set;
 }
@@ -187,7 +187,7 @@ contract TokenUri{
  function getTokenURI(
         uint256 tokenId,
         Attributes memory NFTData
-    ) public view returns (string memory) {
+    ) public pure returns (string memory) {
         string memory json;
 
         string memory uri;
