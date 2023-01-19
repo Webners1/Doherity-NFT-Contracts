@@ -1,6 +1,7 @@
 const hre = require('hardhat');
 const apis = require('../data/api.json');
 const airnodeProtocol = require('@api3/airnode-protocol');
+const airnodeAdmin = require('@api3/airnode-admin');
 const amounts = {
     goerli: { value: 0.1, unit: 'ETH' },
     mainnet: { value: 0.05, unit: 'ETH' },
@@ -19,12 +20,10 @@ const amounts = {
 };
 async function main() {
     const apiData = apis['ANU Quantum Random Numbers'];
-    const airnodeRrpAddress = airnodeProtocol.AirnodeRrpAddresses[await hre.getChainId()];
-    const qrngRandom = await hre.deployments.deploy('QrngRandom', {
-        args: [airnodeRrpAddress],
-        from: (await getUnnamedAccounts())[0],
-        log: true,
-    });
+    const airnodeRrpAddress = airnodeProtocol.AirnodeRrpAddresses[97];
+    let QrngRandom = await ethers.getContractFactory("QrngRandom")
+    
+    const qrngRandom = await QrngRandom.deploy(airnodeRrpAddress);
     console.log(`Deployed qrngRandom at ${qrngRandom.address}`);
 
     const sponsorWalletAddress = await airnodeAdmin.deriveSponsorWalletAddress(

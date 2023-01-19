@@ -166,7 +166,6 @@ library Base64 {
     }
 }
 struct Attributes {
-    string uniqueAttribute;
     uint256 speice;
     uint256 ExperiencePoint;
     uint256 rarity;
@@ -179,7 +178,6 @@ struct Attributes {
     uint256 health;
     uint256 Level;
     //check if attributes are setted
-    bool set;
 }
 contract TokenUri{
 
@@ -224,36 +222,24 @@ contract TokenUri{
                         uri,
                         "',",
                         // "'description': '", "Bird'", ",",
-                        "'attributes': [{'trait_type': 'Base Trait', 'value': '",
-                        NFTData.BaseTrait,
-                        "'},",
-                        "{'trait_type': 'Experience Points', 'value': '",
-                        Strings.toString(NFTData.ExperiencePoint),
-                        "'},",
-                        "{'trait_type': 'Max Stamina', 'value': '",
-                        Strings.toString(NFTData.MaxStamina),
-                        "'},",
+                        "'attributes': [{'trait_type': 'Base Trait', 'value': 'Anomaly'},"
+                        "{'trait_type': 'Experience Points', 'value': '0'}",
+                        "{'trait_type': 'Max Stamina', 'value': '300'}",
                         "{'trait_type': 'Level', 'value': '",
                         Strings.toString(NFTData.Level),
                         "'},",
                         "{'trait_type': 'Rarity', 'value': '",
                         Strings.toString(NFTData.rarity),
                         "'},",
-                        "{'trait_type': 'Stamina', 'value': '",
-                        Strings.toString(NFTData.Stamina),
-                        "'},",
+                        "{'trait_type': 'Stamina', 'value': '300'}",
                         "{'trait_type': 'Attack Power', 'value': '",
                         Strings.toString(NFTData.Attack),
                         "'},",
                         "{'trait_type': 'Defense Points', 'value': '",
                         Strings.toString(NFTData.Defense),
                         "'},",
-                        "{'trait_type': 'Max Health Points', 'value': '",
-                        Strings.toString(NFTData.MaxHealth),
-                        "'},",
-                        "{'trait_type': 'Health Points', 'value': '",
-                        Strings.toString(NFTData.health),
-                        "'}",
+                        "{'trait_type': 'Max Health Points', 'value': '100'}",
+                        "{'trait_type': 'Health Points', 'value': '100'}",
                         "]}"
                     )
                 )

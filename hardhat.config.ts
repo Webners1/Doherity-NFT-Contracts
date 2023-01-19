@@ -6,10 +6,9 @@ import "@nomiclabs/hardhat-waffle";
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-etherscan";
 // import "@openzeppelin/contracts-upgradeable"
-import "./src";
 const RINKEBY_RPC_URL = "https://eth-rinkeby.alchemyapi.io/v2/taLEpPnjCmIER87tLROTW6GNlvIheNen"
 const KOVAN_RPC_URL = "https://eth-kovan.alchemyapi.io/v2/taLEpPnjCmIER87tLROTW6GNlvIheNen"
-const ETHERSCAN_API_KEY = "QRY1R5ZGTSNX8SFQA3UBEQ715X16JKF11T"
+const ETHERSCAN_API_KEY = "TXM6V5CKKEZBMMS77EZYPNFS5BYMAKEMBD"
 // optional
 const PRIVATE_KEY = "a3d3f11bfe51468f16efbb6f15d2f3dd33eee513241812c401196aeb538e2842"
 
@@ -35,6 +34,11 @@ module.exports= {
       url: "https://eth-goerli.g.alchemy.com/v2/CFKeOAiXYkjT6o-18rkEdSClaM6zdPYl" ,
       accounts: [PRIVATE_KEY],
       chainId: 5,
+    },
+    bsctestnet:{
+      url: "https://data-seed-prebsc-1-s3.binance.org:8545/" ,
+      accounts: [PRIVATE_KEY],
+      chainId: 97,
     },
     kovan: {
       url: KOVAN_RPC_URL,

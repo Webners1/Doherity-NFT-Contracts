@@ -8,6 +8,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./tokenUri.sol";
 
+// struct Attributes {
+//     uint256 speice;
+//     uint256 ExperiencePoint;
+//     uint256 rarity;
+//     string BaseTrait;
+//     uint256 MaxStamina;
+//     uint256 Stamina;
+//     uint256 Attack;
+//     uint256 MaxHealth;
+//     uint256 Defense;
+//     uint256 health;
+//     uint256 Level;
+//     //check if attributes are setted
+// }
 
 /// @title Example contract that uses Airnode RRP to receive QRNG services
 /// @notice This contract is not secure. Do not use it in production. Refer to
@@ -41,10 +55,13 @@ contract QrngRandom is RrpRequesterV0, Ownable {
     /// that will be fulfilled by its sponsor wallet. See the Airnode protocol
     /// docs about sponsorship for more information.
     /// @param _airnodeRrp Airnode RRP contract address
-    constructor(address _airnodeRrp, address _NFTContract)
+    constructor(address _airnodeRrp)
         RrpRequesterV0(_airnodeRrp)
     {
+    }
+    function setNFTContract(address _NFTContract)public onlyOwner{
         NFT_CONTRACT = _NFTContract;
+
     }
 
     /// @notice Sets parameters used in requesting QRNG services
@@ -191,7 +208,7 @@ contract AaronNFT is ERC721,AccessControl {
         NFTBatch[5] = 125;
         NFTBatch[6] = 50;
         NFTBatch[7] = 25;
-        METADATA = TokenUri(tokenUri);
+        // METADATA = TokenUri(tokenUri);
           _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     function grantNFTRole(address _NFT_EDITOR_ROLE)public onlyRole(DEFAULT_ADMIN_ROLE){
@@ -209,7 +226,6 @@ contract AaronNFT is ERC721,AccessControl {
             uint256 newItemId = tokenIds++;
             _mint(account, newItemId);
             level[newItemId] = 1;
-            _tokenIdToAttributes[newItemId] = selectAttrbiutes();
             selectRandomNftWithAttributes(newItemId);
             emit Rarity(newItemId, _tokenIdToAttributes[newItemId].rarity);
         }
@@ -221,7 +237,19 @@ contract AaronNFT is ERC721,AccessControl {
         returns (Attributes memory)
     {
         uint256 _rand = randomNumProb();
-        _tokenIdToAttributes[_tokenId].speice = uint256(_rand);
+        _tokenIdToAttributes[_tokenId] =  Attributes({
+    rarity:5,
+    BaseTrait: "Anomaly",
+    ExperiencePoint:0,
+    MaxStamina:300,
+    Stamina:300,
+    Level:1,
+    Attack: randRarity(100) + 350,
+    Defense: randRarity(100) + 350,
+    MaxHealth: 100,
+    health:100,
+    speice: uint256(_rand)
+});
         return _tokenIdToAttributes[_tokenId];
     }
 
@@ -314,28 +342,7 @@ contract AaronNFT is ERC721,AccessControl {
         revealed = true;
     }
 
-    function selectAttrbiutes()
-        internal
-        view
-        virtual
-        returns (Attributes memory)
-    {
-        Attributes memory attr;
-
-        attr.rarity = 5;
-        attr.BaseTrait = "Anomaly";
-        attr.ExperiencePoint = 0;
-        attr.MaxStamina = 300;
-        attr.Stamina = 300;
-        attr.Attack = randRarity(100) + 350;
-        attr.Defense = randRarity(100) + 350;
-        attr.MaxHealth = 100;
-        attr.health = 100;
-        attr.set = true;
-        return attr;
-    }
-     
-
+   
     function tokenURI(uint256 tokenId)
         public
         view
@@ -346,7 +353,7 @@ contract AaronNFT is ERC721,AccessControl {
         if (revealed == false) {
             return notRevealedUri;
         }
-        return
+        return 
             METADATA.getTokenURI(tokenId, _tokenIdToAttributes[tokenId]);
     }
 
